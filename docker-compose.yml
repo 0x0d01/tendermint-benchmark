@@ -1,0 +1,107 @@
+version: '3'
+services: 
+
+  api-0:
+    image: nutthadol/tm-benchmark-api:latest
+    environment:
+     - TENDERMINT_IP=tm-0
+     - TENDERMINT_PORT=46657
+     - SERVER_PORT=8000
+    ports:
+     - 8000:8000
+    networks:
+     - tm-benchmark
+    depends_on:
+     - tm-0
+  tm-0:
+    image: ndidplatform/tendermint:latest
+    command:
+      - genesis
+      - --rpc.laddr=tcp://0.0.0.0:46657
+      - --p2p.laddr=tcp://0.0.0.0:46656
+      - --proxy_app=tcp://abci-0:46658
+    ports:
+      - 45000:46657
+    networks:
+      - tm-benchmark
+    depends_on:
+      - abci-0
+  abci-0:
+    image: nutthadol/tm-benchmark-abci:latest
+    command: tcp://0.0.0.0:46658
+    networks:
+      - tm-benchmark
+  api-1:
+    image: nutthadol/tm-benchmark-api:latest
+    environment:
+     - TENDERMINT_IP=tm-1
+     - TENDERMINT_PORT=46657
+     - SERVER_PORT=8000
+    ports:
+     - 8001:8000
+    networks:
+     - tm-benchmark
+    depends_on:
+     - tm-1
+  tm-1:
+    image: ndidplatform/tendermint:latest
+    environment:
+      - TM_RPC_PORT=46657
+      - SEED_HOSTNAME=tm-0
+    command:
+      - secondary
+      - --rpc.laddr=tcp://0.0.0.0:46657
+      - --p2p.laddr=tcp://0.0.0.0:46656
+      - --proxy_app=tcp://abci-1:46658
+      - --p2p.seeds=tm-0:46656
+    ports:
+      - 45001:46657
+    networks:
+      - tm-benchmark
+    depends_on:
+      - tm-0
+      - abci-1
+  abci-1:
+    image: nutthadol/tm-benchmark-abci:latest
+    command: tcp://0.0.0.0:46658
+    networks:
+      - tm-benchmark
+  api-2:
+    image: nutthadol/tm-benchmark-api:latest
+    environment:
+     - TENDERMINT_IP=tm-2
+     - TENDERMINT_PORT=46657
+     - SERVER_PORT=8000
+    ports:
+     - 8002:8000
+    networks:
+     - tm-benchmark
+    depends_on:
+     - tm-2
+  tm-2:
+    image: ndidplatform/tendermint:latest
+    environment:
+      - TM_RPC_PORT=46657
+      - SEED_HOSTNAME=tm-0
+    command:
+      - secondary
+      - --rpc.laddr=tcp://0.0.0.0:46657
+      - --p2p.laddr=tcp://0.0.0.0:46656
+      - --proxy_app=tcp://abci-2:46658
+      - --p2p.seeds=tm-0:46656
+    ports:
+      - 45002:46657
+    networks:
+      - tm-benchmark
+    depends_on:
+      - tm-0
+      - abci-2
+  abci-2:
+    image: nutthadol/tm-benchmark-abci:latest
+    command: tcp://0.0.0.0:46658
+    networks:
+      - tm-benchmark
+  
+
+networks:
+  tm-benchmark:

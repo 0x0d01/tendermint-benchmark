@@ -1,0 +1,11 @@
+version: "3"
+services:
+
+  tm-benchmark-abci:
+    build:
+      context: abci/
+    image: nutthadol/tm-benchmark-abci:latest
+  tm-benchmark-api:
+    build:
+      context: RESTAPI/
+    image: nutthadol/tm-benchmark-api:latest
