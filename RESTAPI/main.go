@@ -1,6 +1,7 @@
 package main
 
 import (
+        "os"
 	"fmt"
 	"net/http"
 
@@ -22,7 +23,7 @@ func SendAll(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	seq := params["seq"]
-	url := `http://localhost:46657/broadcast_tx_async?tx="` + seq + `=` + p.Payload + `"`
+	url := `http://` + os.Getenv("TENDERMINT_IP") + `:` + os.Getenv("TENDERMINT_PORT") + `/broadcast_tx_async?tx="` + seq + `=` + p.Payload + `"`
 	req, _ := http.NewRequest("GET", url, nil)
 	res, _ := http.DefaultClient.Do(req)
 	defer res.Body.Close()
@@ -46,7 +47,7 @@ func SendIdp(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	seq := params["seq"]
-	url := `http://localhost:46657/broadcast_tx_async?tx="` + seq + `=` + p.Payload + `"`
+	url := `http://` + os.Getenv("TENDERMINT_IP") + `:` + os.Getenv("TENDERMINT_PORT") + `/broadcast_tx_async?tx="` + seq + `=` + p.Payload + `"`
 
 	fmt.Println(string(url))
 	req, _ := http.NewRequest("GET", url, nil)
@@ -60,5 +61,8 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/send_all/{seq}", SendAll).Methods("POST")
 	router.HandleFunc("/send_idp/{seq}", SendIdp).Methods("POST")
-	log.Fatal(http.ListenAndServe(":8000", router))
+        fmt.Println("TENDERMINT_IP=" + os.Getenv("TENDERMINT_IP"))
+	fmt.Println("TENDERMINT_PORT=" + os.Getenv("TENDERMINT_PORT"))
+        fmt.Println("SERVER_PORT=" + os.Getenv("SERVER_PORT"))
+	log.Fatal(http.ListenAndServe(":" + os.Getenv("SERVER_PORT"), router))
 }
