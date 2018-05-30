@@ -2,7 +2,7 @@ package did
 
 import (
 	"bytes"
-	"encoding/hex"
+	"encoding/base64"
 	"fmt"
 	"strconv"
 	"strings"
@@ -63,7 +63,7 @@ func (app *DIDApplication) execValidatorTx(tx []byte) types.ResponseDeliverTx {
 	// pubkeyS, powerS := pubKeyAndPower[0], pubKeyAndPower[1]
 
 	// decode the pubkey, ensuring its go-crypto encoded
-	pubkey, err := hex.DecodeString(pubkeyS)
+	pubkey, err := base64.StdEncoding.DecodeString(pubkeyS)
 	var pubKeyEd crypto.PubKeyEd25519
 	copy(pubKeyEd[:], pubkey)
 
